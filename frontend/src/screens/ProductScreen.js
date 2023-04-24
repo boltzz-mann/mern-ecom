@@ -1,21 +1,22 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { Link } from 'react-router-dom'
 import { Row, Col, Image, ListGroup, Card, Button } from 'react-bootstrap'
 import Rating from '../components/Rating'
 import axios from 'axios'
+import useSWR from 'swr'
+
+const fetcher = url => axios.get(url).then(res => res.data)
 
 const ProductScreen = ({ match }) => {
-    const [product, setProduct] = useState({})
+    const { data, error, isLoading } = useSWR(
+        `/api/products/${match.params.id}`,
+        fetcher
+    )
 
-    useEffect(() => {
-        const fetchProduct = async () => {
-            const { data } = await axios.get(`/api/products/${match.params.id}`)
+    if (error) return 'Error'
+    if (isLoading) return 'Loading...'
 
-            setProduct(data)
-        }
-
-        fetchProduct()
-    }, [match])
+    const product = data ?? []
 
     return (
         <>
